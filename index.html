@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Misión: Operación Cuerpo en Acción</title>
+<style>
+:root{
+  --bg:#06101d;
+  --panel:#0b1c2e;
+  --panel2:#10283d;
+  --ink:#f7fbff;
+  --muted:#b9c8d8;
+  --white:#fff;
+  --dark:#162333;
+  --green:#45d56e;
+  --red:#ff5561;
+  --orange:#ff9c45;
+  --yellow:#ffd84d;
+  --blue:#4e92ff;
+  --cyan:#45d5d1;
+  --purple:#9d7bff;
+  --shadow:0 14px 34px rgba(0,0,0,.34);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  color:var(--ink);
+  font-family:Inter,ui-rounded,"Arial Rounded MT Bold",Arial,sans-serif;
+  background:
+    radial-gradient(circle at 12% 18%,rgba(78,146,255,.15),transparent 24%),
+    radial-gradient(circle at 88% 14%,rgba(157,123,255,.13),transparent 22%),
+    linear-gradient(180deg,#06101d,#040a12);
+  overflow:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(114,162,214,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(114,162,214,.035) 1px,transparent 1px);
+  background-size:46px 46px;
+}
+body::after{
+  content:"";
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(circle at 8% 22%,rgba(255,255,255,.85) 0 1px,transparent 1.7px),
+    radial-gradient(circle at 82% 17%,rgba(255,255,255,.60) 0 1px,transparent 1.7px),
+    radial-gradient(circle at 22% 79%,rgba(255,255,255,.70) 0 1px,transparent 1.7px),
+    radial-gradient(circle at 72% 82%,rgba(255,255,255,.70) 0 1px,transparent 1.7px);
+}
+button{font:inherit}
+.game{
+  width:min(1650px,100%);
+  height:100vh;
+  margin:0 auto;
+  padding:8px 14px 9px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-bottom:6px;
+}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.brand-icon{
+  width:45px;height:45px;border-radius:12px;display:grid;place-items:center;
+  font-size:24px;background:linear-gradient(145deg,#4e92ff,#7856da);
+  border:1px solid rgba(255,255,255,.24);box-shadow:var(--shadow);
+}
+h1{
+  margin:0;font-size:clamp(19px,2.3vw,31px);line-height:1;
+  text-transform:uppercase;letter-spacing:-.7px;
+}
+.top-actions{display:flex;gap:7px;align-items:center}
+.icon-btn{
+  width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,.14);
+  background:#10283d;color:#fff;cursor:pointer;font-size:18px;
+  box-shadow:0 8px 20px rgba(0,0,0,.22);
+}
+.round-pill,.counter{
+  height:40px;display:grid;place-items:center;border-radius:12px;
+  background:#fff;color:#132033;font-weight:1000;box-shadow:var(--shadow);
+}
+.round-pill{padding:0 13px;font-size:12px;text-transform:uppercase}
+.counter{min-width:80px;padding:0 13px;font-size:21px}
+.mission-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-bottom:6px;
+}
+.instruction{
+  display:flex;align-items:center;gap:8px;width:max-content;max-width:100%;
+  padding:7px 11px;border-radius:11px;background:#fff;color:#152133;
+  font-weight:1000;box-shadow:var(--shadow);
+}
+.instruction small{font-size:clamp(11px,1.03vw,14px)}
+.level{
+  padding:7px 11px;border-radius:999px;
+  background:linear-gradient(135deg,#4e92ff,#9d7bff);
+  font-size:12px;font-weight:1000;text-transform:uppercase;
+  box-shadow:0 8px 20px rgba(78,146,255,.2);
+}
+.stage{
+  border:3px dashed rgba(123,152,192,.27);
+  background:linear-gradient(180deg,rgba(13,30,46,.97),rgba(7,17,29,.97));
+  border-radius:24px;padding:10px 12px;min-height:0;flex:1;overflow:hidden;
+  box-shadow:inset 0 0 70px rgba(78,146,255,.06);
+  display:flex;flex-direction:column;
+}
+.stage-head{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
+  margin-bottom:6px;
+}
+.stage-title{margin:0;font-size:clamp(19px,2.35vw,29px);text-transform:uppercase}
+.stage-sub{margin:2px 0 0;color:var(--muted);font-size:12px;font-weight:700}
+.progress-track{
+  width:min(300px,39vw);height:8px;background:#172b3d;border-radius:999px;
+  border:1px solid rgba(255,255,255,.08);overflow:hidden;
+}
+.progress-fill{
+  height:100%;width:0;background:linear-gradient(90deg,#45d56e,#45d5d1,#9d7bff);
+  transition:width .25s ease;border-radius:inherit;
+}
+#gameArea{
+  flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;
+}
+
+/* TARJETAS */
+.cards{
+  display:grid;grid-template-columns:repeat(6,minmax(115px,1fr));
+  gap:8px;margin-bottom:8px;
+}
+.card{
+  min-height:72px;border:0;border-radius:13px;background:#fff;color:#152133;
+  box-shadow:0 7px 0 #cad4de,0 13px 26px rgba(0,0,0,.25);
+  display:flex;align-items:center;gap:8px;padding:7px 8px;text-align:left;
+  cursor:grab;user-select:none;touch-action:manipulation;transition:.16s ease;
+}
+.card:hover{transform:translateY(-2px)}
+.card:active{cursor:grabbing}
+.card.selected{outline:4px solid var(--yellow);transform:translateY(-2px) scale(1.012)}
+.card.dragging{opacity:.45}
+.card.done{visibility:hidden;pointer-events:none}
+.card-icon{font-size:28px;line-height:1;flex:none}
+.card-name{font-weight:1000;text-transform:uppercase;font-size:11px;line-height:1.05}
+.card-hint{font-size:9px;color:#6d7b8e;font-weight:700;margin-top:2px;line-height:1.05}
+
+/* RONDA 1 */
+.zones4{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:9px;flex:1;min-height:0;
+}
+.zone{
+  border:3px dashed #6f86a2;border-radius:19px;padding:9px;
+  background:rgba(12,27,43,.65);transition:.16s ease;overflow:auto;
+}
+.zone.hover{border-color:var(--yellow);box-shadow:0 0 0 6px rgba(255,216,77,.10)}
+.zone.bad{animation:shake .28s linear 2;border-color:var(--red)}
+.zone-head{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.zone-head .emoji{font-size:23px}
+.zone-head b{font-size:16px;text-transform:uppercase}
+.zone p{margin:0 0 6px;color:var(--muted);font-size:9px;font-weight:700}
+.zone-items{display:flex;flex-wrap:wrap;gap:5px}
+.chip{
+  display:flex;align-items:center;gap:5px;padding:5px 7px;border-radius:9px;
+  background:#fff;color:#162233;font-size:9px;font-weight:1000;
+  box-shadow:0 5px 12px rgba(0,0,0,.20);animation:pop .2s ease;
+}
+
+/* RONDA 2 */
+.sequence-tabs{
+  display:flex;gap:7px;justify-content:center;margin-bottom:7px;
+}
+.sequence-tab{
+  border:1px solid rgba(255,255,255,.15);background:#13283d;color:#fff;
+  padding:7px 11px;border-radius:999px;font-size:11px;font-weight:1000;
+  cursor:pointer;
+}
+.sequence-tab.active{background:#fff;color:#162233}
+.sequence-wrap{flex:1;min-height:0;display:flex;flex-direction:column}
+.sequence-board{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:9px;align-items:center;flex:1;
+}
+.seq-slot{
+  min-height:150px;border:3px dashed #7f90bf;border-radius:20px;
+  background:rgba(12,27,43,.62);display:flex;align-items:center;justify-content:center;
+  color:#7f8ca5;position:relative;text-align:center;padding:8px;font-weight:1000;
+}
+.seq-slot::after{
+  content:"➜";position:absolute;right:-18px;color:#8fa7ff;font-size:24px;z-index:2;
+}
+.seq-slot:last-child::after{display:none}
+.seq-slot.hover{border-color:var(--yellow)}
+.seq-slot.good{border-color:var(--green);background:rgba(28,98,65,.18);color:#fff}
+.seq-slot.bad{animation:shake .28s linear 2;border-color:var(--red)}
+.seq-content{display:flex;flex-direction:column;align-items:center;gap:7px}
+.seq-content .emoji{font-size:38px}
+.seq-content b{font-size:12px;text-transform:uppercase}
+.sequence-help{
+  margin-top:7px;text-align:center;color:var(--muted);font-size:11px;font-weight:800;
+}
+
+/* RONDA 3 */
+.body-layout{
+  display:grid;grid-template-columns:310px 1fr;gap:12px;flex:1;min-height:0;
+}
+.body-panel{
+  position:relative;border-radius:22px;border:1px solid rgba(255,255,255,.08);
+  background:radial-gradient(circle at 50% 42%,rgba(78,146,255,.12),transparent 56%);
+  display:grid;place-items:center;overflow:hidden;
+}
+.human{
+  width:180px;height:330px;position:relative;
+}
+.head{
+  position:absolute;left:50%;top:3px;transform:translateX(-50%);
+  width:70px;height:70px;border-radius:50%;
+  background:linear-gradient(180deg,#cce0f7,#9dbbd8);
+  border:3px solid #edf7ff;
+}
+.torso{
+  position:absolute;left:50%;top:68px;transform:translateX(-50%);
+  width:115px;height:150px;border-radius:48px 48px 30px 30px;
+  background:linear-gradient(180deg,#bdd7ee,#89aeca);
+  border:3px solid #edf7ff;
+}
+.arm{
+  position:absolute;top:82px;width:28px;height:150px;border-radius:20px;
+  background:#95b7d3;border:3px solid #edf7ff;
+}
+.arm.left{left:4px;transform:rotate(8deg)}.arm.right{right:4px;transform:rotate(-8deg)}
+.leg{
+  position:absolute;top:205px;width:38px;height:120px;border-radius:18px;
+  background:#8babc7;border:3px solid #edf7ff;
+}
+.leg.left{left:42px}.leg.right{right:42px}
+.organ{
+  position:absolute;z-index:3;font-size:34px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25));
+}
+.organ.lungs{top:95px;left:50%;transform:translateX(-50%)}
+.organ.heart{top:128px;left:88px}
+.organ.stomach{top:165px;left:55px}
+.organ.kidneys{top:188px;left:50%;transform:translateX(-50%)}
+.body-side{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:8px;align-content:start;overflow:auto;
+}
+.connection-card{
+  min-height:70px;border:0;border-radius:13px;background:#fff;color:#152133;
+  box-shadow:0 7px 0 #cad4de,0 13px 24px rgba(0,0,0,.23);
+  display:flex;align-items:center;gap:8px;padding:7px 8px;text-align:left;cursor:grab;
+}
+.connection-card.selected{outline:4px solid var(--yellow)}
+.connection-card.done{visibility:hidden;pointer-events:none}
+.connection-card .emoji{font-size:27px}
+.connection-card b{display:block;font-size:11px;text-transform:uppercase}
+.connection-card small{display:block;font-size:9px;color:#6d7b8e;font-weight:700}
+.connection-zones{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:8px;grid-column:1/3;
+}
+.connection-slot{
+  min-height:78px;border:3px dashed #7389b4;border-radius:14px;
+  background:rgba(12,27,43,.60);display:flex;align-items:center;justify-content:center;
+  text-align:center;color:#8c9ab2;font-size:10px;font-weight:1000;padding:8px;
+}
+.connection-slot.hover{border-color:var(--yellow)}
+.connection-slot.good{border-color:var(--green);background:rgba(28,98,65,.18);color:white}
+.connection-slot.bad{animation:shake .28s linear 2;border-color:var(--red)}
+
+/* RONDA 4 */
+.habits-layout{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:9px;flex:1;min-height:0;
+}
+.habit-zone{
+  border:3px dashed #6f86a2;border-radius:19px;padding:9px;
+  background:rgba(12,27,43,.65);transition:.16s ease;overflow:auto;
+}
+.habit-zone.hover{border-color:var(--yellow)}
+.habit-zone.bad{animation:shake .28s linear 2;border-color:var(--red)}
+.habit-zone h3{margin:0 0 3px;font-size:15px;text-transform:uppercase}
+.habit-zone p{margin:0 0 6px;color:var(--muted);font-size:9px;font-weight:700}
+
+/* FEEDBACK */
+.feedback{min-height:50px;display:flex;align-items:center;justify-content:center;margin-top:4px}
+.toast{
+  width:min(760px,100%);display:none;grid-template-columns:38px 1fr;gap:11px;align-items:center;
+  padding:8px 13px;border-radius:14px;box-shadow:var(--shadow);
+  border:1px solid rgba(255,255,255,.17);animation:slide .22s ease;
+}
+.toast.show{display:grid}
+.toast.info{background:linear-gradient(135deg,#2e6fbd,#4e92ff)}
+.toast.success{background:linear-gradient(135deg,#2aa84a,#53d46e)}
+.toast.error{background:linear-gradient(135deg,#db3038,#ff585f)}
+.toast-icon{
+  width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+  background:#fff;color:#152133;font-size:21px;font-weight:1000;
+}
+.toast strong{display:block;font-size:15px;margin-bottom:1px}
+.toast span{font-size:11px;font-weight:800}
+.next-row{display:flex;justify-content:center;margin-top:1px}
+.primary{
+  border:0;border-radius:13px;padding:9px 17px;font-weight:1000;font-size:14px;
+  color:#fff;background:linear-gradient(135deg,#4e92ff,#7856da);cursor:pointer;
+  box-shadow:0 10px 22px rgba(78,146,255,.28);display:none;
+}
+.primary.show{display:inline-block}
+.modal{
+  position:fixed;inset:0;background:rgba(0,5,12,.80);backdrop-filter:blur(7px);
+  display:none;place-items:center;padding:20px;z-index:20;
+}
+.modal.show{display:grid}
+.modal-card{
+  width:min(650px,100%);border-radius:28px;padding:32px 26px;text-align:center;
+  background:linear-gradient(180deg,#173448,#0d1e2d);
+  border:2px solid rgba(255,255,255,.14);box-shadow:0 30px 100px rgba(0,0,0,.58);
+}
+.modal-icon{font-size:74px;animation:float 1.15s ease-in-out infinite alternate}
+.modal-card h2{margin:7px 0;font-size:clamp(29px,5.6vw,50px);text-transform:uppercase}
+.modal-card p{color:#cbd7e3;font-size:17px;margin:0 0 19px}
+.modal-card .primary{display:inline-block}
+@keyframes pop{from{opacity:.2;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@keyframes slide{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes float{to{transform:translateY(-7px) rotate(3deg)}}
+@media(max-width:1180px){
+  .cards{grid-template-columns:repeat(4,1fr)}
+  .zones4,.habits-layout{grid-template-columns:repeat(2,1fr)}
+  .body-layout{grid-template-columns:270px 1fr}
+}
+@media(max-width:760px){
+  body{overflow:auto}
+  .game{height:auto;min-height:100vh;overflow:visible}
+  .round-pill,.level{display:none}
+  .mission-row{align-items:flex-start;flex-direction:column}
+  .stage,#gameArea{overflow:visible}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .zones4,.habits-layout{grid-template-columns:1fr}
+  .body-layout{grid-template-columns:1fr}
+  .sequence-board{grid-template-columns:1fr}
+  .seq-slot::after{display:none}
+}
+</style>
+</head>
+<body>
+<main class="game">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">🫀</div>
+      <h1>Misión: Operación Cuerpo en Acción</h1>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="soundBtn" aria-label="Activar o desactivar sonido" title="Sonido">🔊</button>
+      <button class="icon-btn" id="resetBtn" aria-label="Reiniciar juego" title="Reiniciar">↻</button>
+      <div class="round-pill" id="roundPill">Ronda 1 de 4</div>
+      <div class="counter" id="counter">0/16</div>
+    </div>
+  </header>
+
+  <section class="mission-row">
+    <div class="instruction"><span>⭐</span><small id="instructionText">CLASIFICA CADA ÓRGANO EN SU APARATO</small></div>
+    <div class="level">Especialistas del cuerpo 2030</div>
+  </section>
+
+  <section class="stage">
+    <div class="stage-head">
+      <div>
+        <h2 class="stage-title" id="stageTitle">Órganos en misión</h2>
+        <p class="stage-sub" id="stageSub">Reconstruye los cuatro aparatos que participan en la función de nutrición.</p>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div id="gameArea"></div>
+
+    <div class="feedback" aria-live="assertive" aria-atomic="true">
+      <div class="toast info show" id="toast">
+        <div class="toast-icon" id="toastIcon">☝️</div>
+        <div><strong id="toastTitle">¡Comienza la misión!</strong><span id="toastText">Selecciona una tarjeta y colócala en el lugar correcto.</span></div>
+      </div>
+    </div>
+
+    <div class="next-row"><button class="primary" id="nextBtn">Siguiente ronda</button></div>
+  </section>
+</main>
+
+<div class="modal" id="finalModal" role="dialog" aria-modal="true" aria-labelledby="finalTitle">
+  <div class="modal-card">
+    <div class="modal-icon">🏅</div>
+    <h2 id="finalTitle">¡Organismo recuperado!</h2>
+    <p>Has conectado los aparatos digestivo, respiratorio, circulatorio y excretor y has reconstruido la función de nutrición.</p>
+    <button class="primary" id="againBtn">Jugar otra vez</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const ROUNDS = [
+    {
+      type:"organs",
+      title:"Órganos en misión",
+      sub:"Reconstruye los cuatro aparatos de la función de nutrición.",
+      instruction:"CLASIFICA CADA ÓRGANO EN SU APARATO",
+      total:16,
+      zones:[
+        {id:"digestivo",title:"Digestivo",icon:"🍽️",desc:"Transforma los alimentos y absorbe nutrientes."},
+        {id:"respiratorio",title:"Respiratorio",icon:"🫁",desc:"Incorpora oxígeno y elimina dióxido de carbono."},
+        {id:"circulatorio",title:"Circulatorio",icon:"🫀",desc:"Transporta sustancias por todo el cuerpo."},
+        {id:"excretor",title:"Excretor",icon:"💧",desc:"Elimina sustancias de desecho mediante la orina."}
+      ],
+      items:[
+        {id:"boca",name:"Boca",icon:"👄",cat:"digestivo",hint:"Inicio de la digestión",feedback:"La boca inicia la digestión al masticar y mezclar los alimentos con saliva."},
+        {id:"esofago",name:"Esófago",icon:"↘️",cat:"digestivo",hint:"Conduce el alimento",feedback:"El esófago transporta el bolo alimenticio hasta el estómago."},
+        {id:"estomago",name:"Estómago",icon:"🫃",cat:"digestivo",hint:"Digestión",feedback:"El estómago mezcla el alimento con jugos digestivos."},
+        {id:"intestino",name:"Intestino delgado",icon:"➿",cat:"digestivo",hint:"Absorción de nutrientes",feedback:"En el intestino delgado se absorbe la mayor parte de los nutrientes."},
+        {id:"fosas",name:"Fosas nasales",icon:"👃",cat:"respiratorio",hint:"Entrada del aire",feedback:"Las fosas nasales filtran, humedecen y calientan el aire."},
+        {id:"traquea",name:"Tráquea",icon:"🧬",cat:"respiratorio",hint:"Conduce el aire",feedback:"La tráquea conduce el aire hacia los bronquios."},
+        {id:"bronquios",name:"Bronquios",icon:"🌿",cat:"respiratorio",hint:"Distribuyen el aire",feedback:"Los bronquios llevan el aire hasta cada pulmón."},
+        {id:"pulmones",name:"Pulmones",icon:"🫁",cat:"respiratorio",hint:"Intercambio de gases",feedback:"En los pulmones se produce el intercambio de oxígeno y dióxido de carbono."},
+        {id:"corazon",name:"Corazón",icon:"🫀",cat:"circulatorio",hint:"Bombea sangre",feedback:"El corazón impulsa la sangre por todo el organismo."},
+        {id:"arterias",name:"Arterias",icon:"🔴",cat:"circulatorio",hint:"Salen del corazón",feedback:"Las arterias llevan la sangre desde el corazón hacia los órganos."},
+        {id:"venas",name:"Venas",icon:"🔵",cat:"circulatorio",hint:"Regresan al corazón",feedback:"Las venas devuelven la sangre al corazón."},
+        {id:"capilares",name:"Capilares",icon:"🕸️",cat:"circulatorio",hint:"Intercambio con células",feedback:"Los capilares permiten el intercambio de sustancias con las células."},
+        {id:"rinones",name:"Riñones",icon:"🫘",cat:"excretor",hint:"Filtran la sangre",feedback:"Los riñones filtran la sangre y producen la orina."},
+        {id:"ureteres",name:"Uréteres",icon:"〰️",cat:"excretor",hint:"Conducen la orina",feedback:"Los uréteres llevan la orina desde los riñones hasta la vejiga."},
+        {id:"vejiga",name:"Vejiga",icon:"🟣",cat:"excretor",hint:"Almacena la orina",feedback:"La vejiga almacena la orina hasta su expulsión."},
+        {id:"uretra",name:"Uretra",icon:"⬇️",cat:"excretor",hint:"Salida al exterior",feedback:"La uretra conduce la orina desde la vejiga al exterior."}
+      ]
+    },
+    {
+      type:"sequence",
+      title:"Reconstruye los recorridos",
+      sub:"Ordena los procesos internos del organismo.",
+      instruction:"COLOCA LOS ÓRGANOS EN EL ORDEN CORRECTO",
+      total:5,
+      sequences:{
+        alimentos:[
+          {id:"boca2",name:"Boca",icon:"👄",pos:1},
+          {id:"esofago2",name:"Esófago",icon:"↘️",pos:2},
+          {id:"estomago2",name:"Estómago",icon:"🫃",pos:3},
+          {id:"intestino2",name:"Intestino delgado",icon:"➿",pos:4},
+          {id:"grueso",name:"Intestino grueso",icon:"⭕",pos:5}
+        ],
+        aire:[
+          {id:"fosas2",name:"Fosas nasales",icon:"👃",pos:1},
+          {id:"faringe",name:"Faringe",icon:"🗣️",pos:2},
+          {id:"traquea2",name:"Tráquea",icon:"🧬",pos:3},
+          {id:"bronquios2",name:"Bronquios",icon:"🌿",pos:4},
+          {id:"pulmones2",name:"Pulmones",icon:"🫁",pos:5}
+        ],
+        orina:[
+          {id:"sangre",name:"Sangre con desechos",icon:"🩸",pos:1},
+          {id:"rinones2",name:"Riñones",icon:"🫘",pos:2},
+          {id:"ureteres2",name:"Uréteres",icon:"〰️",pos:3},
+          {id:"vejiga2",name:"Vejiga",icon:"🟣",pos:4},
+          {id:"uretra2",name:"Uretra",icon:"⬇️",pos:5}
+        ]
+      }
+    },
+    {
+      type:"connections",
+      title:"Aparatos en conexión",
+      sub:"Relaciona cada sustancia con su recorrido por el cuerpo.",
+      instruction:"ARRASTRA CADA SUSTANCIA HASTA SU RECORRIDO CORRECTO",
+      total:6,
+      items:[
+        {id:"nutrientes",name:"Nutrientes",icon:"🧃",target:"nutrientesRuta",hint:"Del intestino a las células",feedback:"Los nutrientes pasan del intestino delgado a la sangre y llegan a las células."},
+        {id:"oxigeno",name:"Oxígeno",icon:"🫧",target:"oxigenoRuta",hint:"De pulmones a células",feedback:"El oxígeno pasa de los pulmones a la sangre y llega a las células."},
+        {id:"co2",name:"Dióxido de carbono",icon:"💨",target:"co2Ruta",hint:"De células a pulmones",feedback:"El dióxido de carbono viaja desde las células hasta los pulmones."},
+        {id:"desechos",name:"Desechos celulares",icon:"🗑️",target:"desechosRuta",hint:"De células a riñones",feedback:"Los desechos celulares viajan por la sangre hasta los riñones."},
+        {id:"agua",name:"Agua y sales",icon:"💧",target:"aguaRuta",hint:"Circulan y se regulan",feedback:"El agua y las sales circulan por la sangre y su exceso puede eliminarse por los riñones."},
+        {id:"noabsorbidos",name:"Restos no absorbidos",icon:"🥣",target:"restosRuta",hint:"Del intestino al exterior",feedback:"Los restos no absorbidos pasan al intestino grueso y después se expulsan."}
+      ],
+      routes:[
+        {id:"nutrientesRuta",label:"Intestino delgado → sangre → células"},
+        {id:"oxigenoRuta",label:"Pulmones → sangre → células"},
+        {id:"co2Ruta",label:"Células → sangre → pulmones"},
+        {id:"desechosRuta",label:"Células → sangre → riñones"},
+        {id:"aguaRuta",label:"Aparato digestivo → sangre → riñones"},
+        {id:"restosRuta",label:"Intestino delgado → intestino grueso → exterior"}
+      ]
+    },
+    {
+      type:"habits",
+      title:"Código de emergencia saludable",
+      sub:"Relaciona cada situación con el hábito de cuidado más adecuado.",
+      instruction:"CLASIFICA CADA SITUACIÓN SEGÚN EL HÁBITO QUE NECESITA",
+      total:12,
+      zones:[
+        {id:"alimentacion",title:"Alimentación e hidratación",icon:"🥗",desc:"Comer variado y beber suficiente agua."},
+        {id:"actividad",title:"Actividad física",icon:"🏃",desc:"Moverse con frecuencia y evitar el sedentarismo."},
+        {id:"higiene",title:"Higiene",icon:"🧼",desc:"Cuidar la limpieza corporal y alimentaria."},
+        {id:"descanso",title:"Descanso",icon:"😴",desc:"Dormir lo necesario y mantener rutinas."}
+      ],
+      items:[
+        {id:"sed",name:"Después de hacer deporte no bebe agua",icon:"🥵",cat:"alimentacion",hint:"Necesita hidratarse",feedback:"Después del ejercicio es importante reponer agua."},
+        {id:"desayuno",name:"Sale de casa sin desayunar",icon:"⏰",cat:"alimentacion",hint:"Necesita planificar",feedback:"Un desayuno equilibrado puede ayudar a comenzar el día con energía."},
+        {id:"monotona",name:"Siempre come los mismos alimentos",icon:"🍽️",cat:"alimentacion",hint:"Necesita variedad",feedback:"Una alimentación variada ayuda a obtener distintos nutrientes."},
+        {id:"pantallas",name:"Pasa toda la tarde sentado con pantallas",icon:"📱",cat:"actividad",hint:"Necesita movimiento",feedback:"Conviene alternar el tiempo de pantalla con actividad física."},
+        {id:"escaleras",name:"Evita caminar distancias cortas",icon:"🚗",cat:"actividad",hint:"Puede moverse más",feedback:"Caminar en trayectos cortos es una forma sencilla de mantenerse activo."},
+        {id:"recreo",name:"Nunca participa en juegos activos",icon:"⚽",cat:"actividad",hint:"Necesita actividad",feedback:"El juego activo ayuda a fortalecer el cuerpo y mejorar el bienestar."},
+        {id:"manos",name:"Come sin lavarse las manos",icon:"👐",cat:"higiene",hint:"Debe lavarse",feedback:"Lavarse las manos antes de comer reduce el riesgo de infecciones."},
+        {id:"dientes",name:"No se cepilla los dientes después de comer",icon:"🦷",cat:"higiene",hint:"Necesita higiene bucal",feedback:"La higiene dental ayuda a prevenir caries y problemas de encías."},
+        {id:"fruta",name:"Come fruta sin lavarla",icon:"🍎",cat:"higiene",hint:"Debe limpiarla",feedback:"Lavar frutas y verduras ayuda a retirar suciedad y posibles restos."},
+        {id:"poco",name:"Duerme pocas horas",icon:"🌙",cat:"descanso",hint:"Necesita dormir más",feedback:"Dormir lo suficiente favorece la recuperación y el aprendizaje."},
+        {id:"horarios",name:"Cada día se acuesta a una hora diferente",icon:"🕒",cat:"descanso",hint:"Necesita rutina",feedback:"Mantener horarios regulares facilita un descanso de calidad."},
+        {id:"movil",name:"Usa el móvil justo antes de dormir",icon:"📲",cat:"descanso",hint:"Debe desconectar",feedback:"Reducir pantallas antes de dormir puede favorecer el descanso."}
+      ]
+    }
+  ];
+
+  const gameArea=document.getElementById("gameArea");
+  const counter=document.getElementById("counter");
+  const roundPill=document.getElementById("roundPill");
+  const stageTitle=document.getElementById("stageTitle");
+  const stageSub=document.getElementById("stageSub");
+  const instructionText=document.getElementById("instructionText");
+  const progressFill=document.getElementById("progressFill");
+  const toast=document.getElementById("toast");
+  const toastIcon=document.getElementById("toastIcon");
+  const toastTitle=document.getElementById("toastTitle");
+  const toastText=document.getElementById("toastText");
+  const nextBtn=document.getElementById("nextBtn");
+  const resetBtn=document.getElementById("resetBtn");
+  const soundBtn=document.getElementById("soundBtn");
+  const finalModal=document.getElementById("finalModal");
+  const againBtn=document.getElementById("againBtn");
+
+  let roundIndex=0,selectedId=null,completed=0,soundOn=true,audioCtx=null;
+  let currentSequence="alimentos";
+
+  const shuffle=arr=>{
+    const a=[...arr];
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+    return a;
+  };
+
+  function getAudio(){
+    if(!audioCtx){
+      const Ctx=window.AudioContext||window.webkitAudioContext;
+      if(Ctx)audioCtx=new Ctx();
+    }
+    return audioCtx;
+  }
+  function beep(freq=440,d=.08){
+    if(!soundOn)return;
+    const ctx=getAudio();if(!ctx)return;
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type="sine";o.frequency.value=freq;
+    g.gain.setValueAtTime(.0001,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.12,ctx.currentTime+.01);
+    g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+d);
+    o.connect(g).connect(ctx.destination);o.start();o.stop(ctx.currentTime+d+.02);
+  }
+  function successSound(){beep(760,.08);setTimeout(()=>beep(980,.1),90)}
+  function finishSound(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.12),i*120))}
+  function showToast(type,icon,title,text){
+    toast.className=`toast ${type} show`;
+    toastIcon.textContent=icon;toastTitle.textContent=title;toastText.textContent=text;
+  }
+  function updateProgress(total){
+    counter.textContent=`${completed}/${total}`;
+    progressFill.style.width=`${(completed/total)*100}%`;
+  }
+  function setupDrop(el,handler){
+    el.addEventListener("dragover",e=>{e.preventDefault();if(!el.classList.contains("good"))el.classList.add("hover")});
+    el.addEventListener("dragleave",()=>el.classList.remove("hover"));
+    el.addEventListener("drop",e=>{
+      e.preventDefault();el.classList.remove("hover");
+      const id=e.dataTransfer.getData("text/plain")||selectedId;handler(id);
+    });
+  }
+  function commonDrag(el,id){
+    el.draggable=true;
+    el.addEventListener("dragstart",e=>{
+      selectedId=id;el.classList.add("dragging");
+      e.dataTransfer.setData("text/plain",id);e.dataTransfer.effectAllowed="move";
+    });
+    el.addEventListener("dragend",()=>el.classList.remove("dragging"));
+  }
+  function selectCard(id,selector=".card,.connection-card"){
+    const card=[...gameArea.querySelectorAll(selector)].find(x=>x.dataset.id===id);
+    if(!card||card.classList.contains("done"))return;
+    gameArea.querySelectorAll(selector).forEach(x=>x.classList.remove("selected"));
+    selectedId=id;card.classList.add("selected");
+    showToast("info","🧩","Tarjeta seleccionada","Ahora elige el lugar en el que debe colocarse.");
+    beep(440,.06);
+  }
+  function fail(el,msg){
+    el.classList.remove("bad");void el.offsetWidth;el.classList.add("bad");
+    gameArea.querySelectorAll(".selected").forEach(x=>x.classList.remove("selected"));
+    selectedId=null;showToast("error","✕","Ups…",msg);beep(180,.14);
+    setTimeout(()=>el.classList.remove("bad"),650);
+  }
+  function noSelection(){
+    showToast("info","☝️","Selecciona una tarjeta","Pulsa primero una tarjeta y después el lugar donde quieres colocarla.");
+  }
+  function checkComplete(total){
+    if(completed!==total)return;
+    setTimeout(()=>{
+      if(roundIndex<ROUNDS.length-1){
+        showToast("success","🏅","¡Ronda completada!","Has recuperado una parte del organismo. Continúa con la siguiente misión.");
+        nextBtn.classList.add("show");finishSound();
+      }else{
+        finalModal.classList.add("show");finishSound();
+      }
+    },450);
+  }
+  function createCard(item){
+    const c=document.createElement("button");
+    c.type="button";c.className="card";c.dataset.id=item.id;
+    c.innerHTML=`<span class="card-icon">${item.icon}</span><span><span class="card-name">${item.name}</span><span class="card-hint">${item.hint||""}</span></span>`;
+    c.addEventListener("click",()=>selectCard(item.id));
+    commonDrag(c,item.id);return c;
+  }
+
+  function renderRound(){
+    const r=ROUNDS[roundIndex];
+    selectedId=null;completed=0;gameArea.innerHTML="";
+    stageTitle.textContent=r.title;stageSub.textContent=r.sub;instructionText.textContent=r.instruction;
+    roundPill.textContent=`Ronda ${roundIndex+1} de 4`;
+    nextBtn.classList.remove("show");
+    updateProgress(r.total);
+    showToast("info","☝️","¡Nueva misión!","Observa la información y coloca cada tarjeta con atención.");
+    if(r.type==="organs")renderOrgans(r);
+    if(r.type==="sequence"){currentSequence="alimentos";renderSequence(r);}
+    if(r.type==="connections")renderConnections(r);
+    if(r.type==="habits")renderHabits(r);
+  }
+
+  function renderOrgans(r){
+    const cards=document.createElement("div");cards.className="cards";
+    shuffle(r.items).forEach(i=>cards.appendChild(createCard(i)));
+    const zones=document.createElement("div");zones.className="zones4";
+    r.zones.forEach(z=>{
+      const zone=document.createElement("div");zone.className="zone";zone.dataset.cat=z.id;
+      zone.innerHTML=`<div class="zone-head"><span class="emoji">${z.icon}</span><b>${z.title}</b></div><p>${z.desc}</p><div class="zone-items"></div>`;
+      setupDrop(zone,id=>attemptZone(id,z.id,zone));
+      zone.addEventListener("click",e=>{if(e.target.closest(".chip"))return;if(!selectedId)return noSelection();attemptZone(selectedId,z.id,zone)});
+      zones.appendChild(zone);
+    });
+    gameArea.append(cards,zones);
+  }
+
+  function attemptZone(id,cat,zone){
+    if(!id)return noSelection();
+    const r=ROUNDS[roundIndex],item=r.items.find(x=>x.id===id);
+    const card=gameArea.querySelector(`.card[data-id="${id}"]`);
+    if(!item||!card||card.classList.contains("done"))return;
+    if(item.cat===cat){
+      const chip=document.createElement("div");
+      chip.className="chip";chip.innerHTML=`<span>${item.icon}</span><span>${item.name}</span>`;
+      zone.querySelector(".zone-items").appendChild(chip);
+      card.classList.add("done");card.classList.remove("selected");
+      selectedId=null;completed++;updateProgress(r.total);
+      showToast("success","✓","¡Correcto!",item.feedback);successSound();checkComplete(r.total);
+    }else{
+      fail(zone,`“${item.name}” no pertenece a este aparato. Revisa su función y vuelve a intentarlo.`);
+    }
+  }
+
+  function renderSequence(r){
+    completed=0;updateProgress(r.total);
+    gameArea.innerHTML="";
+    const tabs=document.createElement("div");tabs.className="sequence-tabs";
+    [["alimentos","Recorrido de los alimentos"],["aire","Recorrido del aire"],["orina","Recorrido de la orina"]].forEach(([id,label])=>{
+      const b=document.createElement("button");b.type="button";b.className=`sequence-tab ${id===currentSequence?"active":""}`;b.textContent=label;
+      b.addEventListener("click",()=>{currentSequence=id;renderSequence(r)});
+      tabs.appendChild(b);
+    });
+    const wrap=document.createElement("div");wrap.className="sequence-wrap";
+    const seq=r.sequences[currentSequence];
+    const cards=document.createElement("div");cards.className="cards";
+    cards.style.gridTemplateColumns="repeat(5,1fr)";
+    shuffle(seq).forEach(i=>cards.appendChild(createCard({...i,hint:"Colócalo en orden"})));
+    const board=document.createElement("div");board.className="sequence-board";
+    for(let pos=1;pos<=5;pos++){
+      const slot=document.createElement("button");slot.type="button";slot.className="seq-slot";slot.dataset.pos=pos;
+      slot.innerHTML=`<span style="font-size:34px">${pos}</span>`;
+      setupDrop(slot,id=>attemptSequence(id,pos,slot,seq));
+      slot.addEventListener("click",()=>{if(!selectedId)return noSelection();attemptSequence(selectedId,pos,slot,seq)});
+      board.appendChild(slot);
+    }
+    const help=document.createElement("div");help.className="sequence-help";
+    help.textContent=currentSequence==="alimentos"?"Desde que entra el alimento hasta que llegan los restos al intestino grueso."
+      :currentSequence==="aire"?"Desde la entrada del aire hasta el intercambio gaseoso en los pulmones."
+      :"Desde la sangre con desechos hasta la salida de la orina.";
+    wrap.append(cards,board,help);gameArea.append(tabs,wrap);
+  }
+
+  function attemptSequence(id,pos,slot,seq){
+    if(slot.classList.contains("good"))return;
+    const item=seq.find(x=>x.id===id);
+    const card=gameArea.querySelector(`.card[data-id="${id}"]`);
+    if(!item||!card||card.classList.contains("done"))return;
+    if(item.pos===pos){
+      slot.innerHTML=`<div class="seq-content"><span class="emoji">${item.icon}</span><b>${item.name}</b></div>`;
+      slot.classList.add("good");slot.disabled=true;
+      card.classList.add("done");card.classList.remove("selected");
+      selectedId=null;completed++;updateProgress(5);
+      showToast("success","✓","¡Orden correcto!",`${item.name} ocupa la posición ${pos} en este recorrido.`);
+      successSound();
+      if(completed===5){
+        if(currentSequence==="orina"){
+          checkComplete(5);
+        }else{
+          showToast("success","🏅","¡Recorrido completado!","Pulsa otra pestaña para reconstruir un nuevo recorrido.");
+          finishSound();
+        }
+      }
+    }else{
+      fail(slot,`${item.name} no ocupa la posición ${pos} en este recorrido.`);
+    }
+  }
+
+  function renderConnections(r){
+    const layout=document.createElement("div");layout.className="body-layout";
+    const panel=document.createElement("div");panel.className="body-panel";
+    panel.innerHTML=`<div class="human">
+      <div class="head"></div><div class="torso"></div>
+      <div class="arm left"></div><div class="arm right"></div>
+      <div class="leg left"></div><div class="leg right"></div>
+      <div class="organ lungs">🫁</div><div class="organ heart">🫀</div>
+      <div class="organ stomach">🫃</div><div class="organ kidneys">🫘</div>
+    </div>`;
+    const side=document.createElement("div");side.className="body-side";
+    shuffle(r.items).forEach(item=>{
+      const c=document.createElement("button");c.type="button";c.className="connection-card";c.dataset.id=item.id;
+      c.innerHTML=`<span class="emoji">${item.icon}</span><span><b>${item.name}</b><small>${item.hint}</small></span>`;
+      c.addEventListener("click",()=>selectCard(item.id,".connection-card"));
+      commonDrag(c,item.id);side.appendChild(c);
+    });
+    const zones=document.createElement("div");zones.className="connection-zones";
+    r.routes.forEach(route=>{
+      const slot=document.createElement("button");slot.type="button";slot.className="connection-slot";slot.dataset.target=route.id;
+      slot.textContent=route.label;
+      setupDrop(slot,id=>attemptConnection(id,route.id,slot));
+      slot.addEventListener("click",()=>{if(!selectedId)return noSelection();attemptConnection(selectedId,route.id,slot)});
+      zones.appendChild(slot);
+    });
+    side.appendChild(zones);layout.append(panel,side);gameArea.append(layout);
+  }
+
+  function attemptConnection(id,target,slot){
+    if(slot.classList.contains("good"))return;
+    const r=ROUNDS[roundIndex],item=r.items.find(x=>x.id===id);
+    const card=gameArea.querySelector(`.connection-card[data-id="${id}"]`);
+    if(!item||!card||card.classList.contains("done"))return;
+    if(item.target===target){
+      slot.classList.add("good");
+      slot.innerHTML=`<strong>${item.icon} ${item.name}</strong><br><span>${r.routes.find(x=>x.id===target).label}</span>`;
+      slot.disabled=true;card.classList.add("done");card.classList.remove("selected");
+      selectedId=null;completed++;updateProgress(r.total);
+      showToast("success","✓","¡Conexión recuperada!",item.feedback);successSound();checkComplete(r.total);
+    }else{
+      fail(slot,`${item.name} no sigue ese recorrido. Piensa qué aparato interviene primero y cuál después.`);
+    }
+  }
+
+  function renderHabits(r){
+    const cards=document.createElement("div");cards.className="cards";
+    shuffle(r.items).forEach(i=>cards.appendChild(createCard(i)));
+    const zones=document.createElement("div");zones.className="habits-layout";
+    r.zones.forEach(z=>{
+      const zone=document.createElement("div");zone.className="habit-zone";zone.dataset.cat=z.id;
+      zone.innerHTML=`<h3>${z.icon} ${z.title}</h3><p>${z.desc}</p><div class="zone-items"></div>`;
+      setupDrop(zone,id=>attemptHabit(id,z.id,zone));
+      zone.addEventListener("click",e=>{if(e.target.closest(".chip"))return;if(!selectedId)return noSelection();attemptHabit(selectedId,z.id,zone)});
+      zones.appendChild(zone);
+    });
+    gameArea.append(cards,zones);
+  }
+
+  function attemptHabit(id,cat,zone){
+    if(!id)return noSelection();
+    const r=ROUNDS[roundIndex],item=r.items.find(x=>x.id===id);
+    const card=gameArea.querySelector(`.card[data-id="${id}"]`);
+    if(!item||!card||card.classList.contains("done"))return;
+    if(item.cat===cat){
+      const chip=document.createElement("div");chip.className="chip";
+      chip.innerHTML=`<span>${item.icon}</span><span>${item.name}</span>`;
+      zone.querySelector(".zone-items").appendChild(chip);
+      card.classList.add("done");card.classList.remove("selected");
+      selectedId=null;completed++;updateProgress(r.total);
+      showToast("success","✓","¡Decisión saludable!",item.feedback);successSound();checkComplete(r.total);
+    }else{
+      fail(zone,`Esa situación no se resuelve principalmente desde este hábito. Revisa la pista.`);
+    }
+  }
+
+  nextBtn.addEventListener("click",()=>{roundIndex++;renderRound()});
+  resetBtn.addEventListener("click",()=>{roundIndex=0;finalModal.classList.remove("show");renderRound()});
+  againBtn.addEventListener("click",()=>{roundIndex=0;finalModal.classList.remove("show");renderRound()});
+  soundBtn.addEventListener("click",()=>{
+    soundOn=!soundOn;soundBtn.textContent=soundOn?"🔊":"🔇";
+    if(soundOn)beep(620,.08);
+  });
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"){
+      selectedId=null;gameArea.querySelectorAll(".selected").forEach(x=>x.classList.remove("selected"));
+      finalModal.classList.remove("show");
+    }
+  });
+
+  renderRound();
+})();
+</script>
+</body>
+</html>
